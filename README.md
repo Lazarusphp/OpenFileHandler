@@ -8,7 +8,7 @@ Date Of Build :
 Open File Handler (OFH) is a standalone File and Directory Handling Library, OFH is designed to control and cominicate with the Server file structure, set permissions and manage files and directories.
 
 ## The FileWriter Library.
-As Part of the newly designed Open File Handler library it will not incorperate the use of the lazarusphp FileWriter Library giving more control relating to files and folders.
+As Part of the newly designed Open File Handler library it will now incorperate the use of the lazarusphp FileWriter Library giving more control relating to files and folders.
 
 ## Open File handler Permissions manager
 Along side the FileWriter and File handler the Library will also feature a permissions manager. The Permissions manager will give the FileHandler library the ability to set permissions relating to the files and directories.
