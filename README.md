@@ -39,6 +39,15 @@ Along side the FileWriter and File handler the Library will also feature a permi
 composer install lazarusphp/openfilehandler
 ```
 
+*Generating a root Directory (optional)*
+
+```php
+FileHandler::generateRoot($pathname);
+
+// Using Object orientated based can also be done like so, this will also Handle Generate Root.
+$filehandler = new FileHandler($pathname);
+```
+
 ```php
 // Make Sure path exists
 FileHandler::createDirectory("/Apps/Login");
