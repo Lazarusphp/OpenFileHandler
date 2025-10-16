@@ -47,6 +47,9 @@ FileHandler::generateRoot($pathname);
 // Using Object orientated based can also be done like so, this will also Handle Generate Root.
 $filehandler = new FileHandler($pathname);
 ```
+*Creating a Directory*
+
+if a root is not generated but required, the root directory will have to be passed for the following methods.
 
 ```php
 // Make Sure path exists
