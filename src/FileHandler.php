@@ -1,58 +1,64 @@
 <?php
 
-namespace Lazarusphp\FileHandler;
+namespace LazarusPhp\OpenFileHandler;
 
-use App\System\Core\Functions;
-use App\System\Core\Structure\StructurePermissions;
+use LazarusPhp\OpenFileHandler\CoreFiles\FileHandlerCore;
+use LazarusPhp\OpenFileHandler\Traits\Structure;
+use LazarusPhp\OpenFileHandler\Traits\Permissions;
 
-class FileHandler Extends Permissions
+class FileHandler extends FileHandlerCore
 {
 
-    
-
-    /**
-     * Structure Class 
-     * Designed to handle files and directorys including creation and deletion
-     * 
-     *
-     * @var array
-     */
-
-
-    // Add Supported filetypes
-
+    use Structure;
+    use Permissions;
 
     public function __construct(string $directory)
     {
-        $this->directory = null;
-        parent::__construct($directory);
-        
+        return self::generateRoot($directory);
     }
-    
-    
-    public function addFile(string $filename,$data)
+
+    public static function generateRoot($directory)
     {
-        if(substr($filename,0,1) === DIRECTORY_SEPARATOR){
-            $filename = $this->directory.$filename;
-            if(!file_exists($filename))
-            {
-                return file_put_contents($filename,$data);
-            }
+        if(self::hasDirectory($directory) && self::writable($directory)){
+        self::$directory = $directory;
         }
     }
 
-    public function createDirectory(string $path,int $mode = 0755, bool $recursive = true)
+
+    public static function addFile(string $filename,$data)
+    {
+        $supportedFiles = ["php","txt","tpl","class","env","json"];
+
+        $extension = pathinfo($filename)["extension"];
+
+        if(in_array($extension,$supportedFiles))
+        {
+            if(substr($filename,0,1) === DIRECTORY_SEPARATOR){
+                $filename = self::useDirectory($filename);
+                if(!file_exists($filename))
+                {
+                    return file_put_contents($filename,$data);
+                }
+            }
+        }
+        else
+        {
+            echo "Unsupported filetype";
+        }
+    }
+
+    public static function createDirectory(string $path,int $mode = 0755, bool $recursive = true)
     {
         // Detect if  directory Exists
-        $path = (!empty($this->directory)) ? $this->directory.$path : $path;
+        $path = self::useDirectory($path);
 
-        if($this->validMode($mode) === true)
+        if(self::validMode($mode) === true)
         {
         // Create Folder if it doesnt exist
-            if($this->hasDirectory($path) === false)
+            if(self::hasDirectory($path) === false)
             {
                    $oldUmask = umask(0);
-                    if (!mkdir($path,$mode,$recursive) && !is_dir($path)) {
+                    if (!mkdir($path,$mode,$recursive) && !self::hasDirectory($path)) {
                         umask($oldUmask);
                         throw new \RuntimeException("Failed to create directory: {$path}");
                     }
@@ -66,7 +72,7 @@ class FileHandler Extends Permissions
         }
     }
 
-    public function listFolders($path, $basePath = null)
+    public static function listAll($path, $basePath = null)
 {
     // On first call, set the base path for relative calculations
     if ($basePath === null) {
@@ -74,11 +80,11 @@ class FileHandler Extends Permissions
     }
 
     // Avoid double prefixing
-    if (!empty($this->directory) && strpos($path, $this->directory) !== 0) {
-        $path = rtrim($this->directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+    if (!empty(self::$directory) && strpos($path, self::$directory) !== 0) {
+        $path = rtrim(self::$directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
     }
 
-    if ($this->hasDirectory($path) === false) {
+    if (self::hasDirectory($path) === false) {
         return ["folders" => [], "files" => []];
     }
 
@@ -87,20 +93,20 @@ class FileHandler Extends Permissions
     $items = @scandir($path); // use @ to safely handle unreadable dirs
     foreach ($items ?: [] as $item) {
 
-        if ($item === '.' || $item === '..') {
+        if (self::withDots($item)) {
             continue;
         }
 
         $ds = DIRECTORY_SEPARATOR;
         $fullpath = rtrim($path, $ds) . $ds . ltrim($item, $ds);
 
-        if (is_file($fullpath)) {
+        if (self::hasFile($fullpath) === true) {
             $result["files"][] = $fullpath;
-        } elseif (is_dir($fullpath)) {
+        } elseif (self::hasDirectory($fullpath) === true) {
             $result["folders"][] = $fullpath;
 
             // Recursively list contents of subdirectories
-            $subdir = $this->listFolders($fullpath, $basePath);
+            $subdir = self::listAll($fullpath, $basePath);
 
             // Ensure recursion always returns an array with both keys
             $subFolders = $subdir["folders"] ?? [];
@@ -114,43 +120,48 @@ class FileHandler Extends Permissions
     return $result;
 }
 
-   public function deleteDirectory($directory)
+   public static function deleteDirectory($directory)
 {
     // List all directories and files (returns ['folders'=>[], 'files'=>[]])
-    $paths = $this->listFolders($directory);
+    $paths = self::listAll($directory);
 
     $paths = array_reverse($paths);
     $ds = DIRECTORY_SEPARATOR;
 
     foreach($paths["files"] as $file)
     {
-        if(is_file($file))
+        if(self::hasFile($file))
         {
-            if(unlink($file))
+            if(!unlink($file))
             {
-                echo "deleted File : $file";
+                // Output Error to why it failed
             }
         }
     }
     foreach($paths["folders"] as $folder)
     {
-        if(is_dir($folder));
+        if(self::hasDirectory($folder));
         {
-            if(rmdir($folder))
+            if(!rmdir($folder))
             {
-                echo "Deleted Folder : $folder" ;
+            // Output Error here
             }
         }
     }
 
-    if(is_dir($this->directory.$directory))
+    // Redeclare Directrory;
+    $directory = self::useDirectory($directory);
+    if(self::hasDirectory($directory))
     {
-        if(rmdir("{$this->directory}$directory"))
+        if(!rmdir($directory))
         {
-            echo "Deleted Directory";
+            // Output error handler message here 
         }
     }
-
+    else
+    {
+        // Output directory not found error handler;
+    }
     return true;
 }
 
