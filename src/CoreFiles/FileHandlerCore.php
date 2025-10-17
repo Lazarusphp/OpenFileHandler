@@ -1,16 +1,31 @@
 <?php
 namespace LazarusPhp\OpenFileHandler\CoreFiles;
 
+use LazarusPhp\OpenFileHandler\Traits\Permissions;
+use LazarusPhp\OpenFileHandler\Traits\Structure;
+
 class FileHandlerCore
 {
 
     protected static $directory = "";
+    private static $prefix = "";
+    // use Permissions;
+    // use Structure;
 
-    public function __construct($directory)
+    protected static function generateRootDir($directory)
     {
-        self::$directory = $directory;        
+        if(!empty($directory))
+        {
+            if(self::hasDirectory($directory) && self::writable($directory)){
+            self::$directory = $directory;
+            }
+        }
     }
 
+    protected static function generatePrefix($prefix)
+    {
+        self::$prefix = $prefix;
+    }
 
     protected static function validMode(int $mode)
     {
@@ -54,4 +69,26 @@ class FileHandlerCore
     {
         return (file_exists($path)) ? true : false;
     }
+
+    // Structure 
+
+    
+    protected static function withDots($path)
+    {
+        return ($path === "." || $path === "..") ? true : false;
+    }
+
+    // Validate if path is Writeable
+    protected static function writable(string $path): bool
+    {
+        return is_writable($path) ? true : false;
+    }
+
+    // Validate if path is readable
+    protected static function readable(string $path): bool
+    {
+        return is_readable($path) ? true : false;
+    }
+
+
 }

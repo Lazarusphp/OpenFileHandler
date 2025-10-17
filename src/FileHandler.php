@@ -9,20 +9,29 @@ use LazarusPhp\OpenFileHandler\Traits\Permissions;
 class FileHandler extends FileHandlerCore
 {
 
-    use Structure;
-    use Permissions;
+    // use Structure;
+    // use Permissions;
 
-    public function __construct(string $directory)
+    // Create Mode
+    public static function create($directory="")
     {
-        return self::generateRoot($directory);
+        self::generateRootDir($directory);
+        return new static;
     }
 
-    public static function generateRoot($directory)
+    public static function prefix(string $prefix,callable $prefixClass)
     {
-        if(self::hasDirectory($directory) && self::writable($directory)){
-        self::$directory = $directory;
+        if(is_callable($prefix))
+        {
+            // Call the Structure Class here
         }
     }
+
+    // Delete Mode
+ 
+
+   
+
 
 
     public static function addFile(string $filename,$data)
