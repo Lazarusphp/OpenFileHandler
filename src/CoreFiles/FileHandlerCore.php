@@ -27,15 +27,6 @@ class FileHandlerCore
         self::$prefix = $prefix;
     }
 
-    protected static function validMode(int $mode)
-    {
-        $modes = [0600, 0644, 0664, 0700, 0755, 0777];
-        if (in_array($mode, $modes)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     // Check File Structure For Dots.
     protected static function removeDots($path)
@@ -60,6 +51,11 @@ class FileHandlerCore
         return is_dir($path) ? true : false;
     }
 
+    protected static function hasPrefix($prefix)
+    {
+        self::$prefix = $prefix;
+    }
+
     protected static function hasFile($path)
     {
         return (is_file($path)) ? true : false;
@@ -73,16 +69,7 @@ class FileHandlerCore
     // Structure 
 
     
-    protected static function withDots($path)
-    {
-        return ($path === "." || $path === "..") ? true : false;
-    }
-
-    // Validate if path is Writeable
-    protected static function writable(string $path): bool
-    {
-        return is_writable($path) ? true : false;
-    }
+    
 
     // Validate if path is readable
     protected static function readable(string $path): bool
