@@ -1,9 +1,8 @@
 <?php
 namespace LazarusPhp\OpenFileHandler;
 
-use LazarusPhp\OpenFileHandler\CoreFiles\FileHandlerCore;
 
-class Permissions extends FileHandlerCore
+class Permissions
 {
 
 
