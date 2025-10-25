@@ -3,28 +3,34 @@
 namespace LazarusPhp\OpenHandler\CoreFiles;
 
 use Exception;
+use LazarusPhp\OpenFileHandler\Permissions;
 use LazarusPhp\OpenHandler\Interfaces\HandlerInterface;
+use LazarusPhp\OpenHandler\Interfaces\ImageInterface;
+use LogicException;
 
 class Handler extends HandlerCore implements HandlerInterface
 {
 
 
-    
-    public function __construct()
+    public function __construct($directory="")
     {
-        // Empty Constructor   
+        // Empty Constructor 
+        if($directory !== "")
+        {
+            $this->setDirectory($directory);
+        }
+        // self::$permissions = new Permissions();
     }
 
     public function setDirectory($directory="./")
     {
-            if (self::hasDirectory($directory) && self::writable($directory)) {
+            if ($this->hasDirectory($directory) && self::writable($directory)) {
                 // Create the directory
                 self::$directory = $directory;
             } else {
                 // Trigger Error
                 trigger_error("$directory cannot be found or is not writable");
             }
-
     }
 
     /**
@@ -34,14 +40,9 @@ class Handler extends HandlerCore implements HandlerInterface
      * @param bool $recursive
      * @return bool
      */
-    public function directory(string $path, int $mode = 0755, bool $recursive = true): bool
+    public function directory(string $path, int $mode = 0755, bool $recursive = true)
     {
-        try {
-            self::addDirectory($path, $mode, $recursive);
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+            return $this->generateDirectory($path, $mode, $recursive);
     }
 
     /**
@@ -52,14 +53,7 @@ class Handler extends HandlerCore implements HandlerInterface
     
     public function delete($path)
     {
-        try{
-            self::deleteData($path);
-        }
-        catch(Exception $e)
-        {
-            throw new Exception($e->getMessage());
-        }
-        
+        return  $this->generateDelete($path);
     }
 
     /**
@@ -71,16 +65,10 @@ class Handler extends HandlerCore implements HandlerInterface
 
     public function file(string $path,array | int | string $data,$flags=0)
     {
-        $path = self::useDirectory($path);
+        $path = $this->filePath($path);
 
-        try
-        {
-            self::addFile($path,$data);
-        }
-        catch(Exception $e)
-        {
-            throw new Exception($e->getMessage());
-        }
+           return $this->generateFile($path,$data);
+        
     }
     
 
@@ -92,69 +80,25 @@ class Handler extends HandlerCore implements HandlerInterface
      */
      
 
-    public function list($path,$recursive=false)
+    public function list($path,$recursive=true,$files=true)
     {
-         $path = self::$prefix !== "" ? self::useDirectory($path) : $path;
-       
-        if(self::hasDirectory($path)){
-        return $this->listAll($path,$recursive);
-        }
+        $path = self::$prefix !== "" ? $this->filePath($path) : $path;
+        return $this->generateList($path,$recursive);
     }
 
-       public function prefix(string $path, callable $handler, array $middleware = [])
+
+    public function prefix(string $path, callable $handler, array $middleware = [])
     {
-
-
-        
-        if(self::$prefix === ""){
-        self::$prefix = $path;
-        }
-
-        // Add MiddleWare Option here
-        
-
-        if (is_callable($handler)) {
-            $class = new self();
-            $handler($class,$path);
-        }
-        // Reset Prefix to start a new one
-        self::$prefix = "";
-        return null;
+        return $this->generatePrefix($path, $handler, $middleware=[]);
     }
 
+    public function breadcrumb()
+    {
+        return $this->generateBreadcrumb();
+    }
+
+    public function upload(string $path,callable $image)
+    {
+
+    }
 }
-
-
-
-
-
-//     
-
-//    public static function deleteDirectory($directory)
-// {
-//     // List all directories and files (returns ['folders'=>[], 'files'=>[]])
-//     $paths = self::listAll($directory);
-
-//     $paths = array_reverse($paths);
-//     $ds = DIRECTORY_SEPARATOR;
-
-//     foreach($paths["files"] as $file)
-//     {
-//         if(self::hasFile($file))
-//         {
-//             if(!unlink($file))
-//             {
-//                 // Output Error to why it failed
-//             }
-//         }
-//     }
-//     foreach($paths["folders"] as $folder)
-//     {
-//         if(self::hasDirectory($folder));
-//         {
-//             if(!rmdir($folder))
-//             {
-//             // Output Error here
-//             }
-//         }
-//     }
