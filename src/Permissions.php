@@ -1,12 +1,13 @@
 <?php
 namespace LazarusPhp\OpenFileHandler;
 
+use LazarusPhp\OpenHandler\CoreFiles\PermissionsCore;
 
-class Permissions
+class Permissions extends PermissionsCore
 {
 
 
-            protected static function apacheUid($path)
+    protected static function apacheUid($path)
     {
         // Build full path using configured directory if provided
         $fullPath = (self::$directory === "") ? $path : rtrim(self::$directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
