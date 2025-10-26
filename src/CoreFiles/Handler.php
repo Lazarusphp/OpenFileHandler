@@ -19,7 +19,7 @@ class Handler extends HandlerCore implements HandlerInterface
         {
             $this->setDirectory($directory);
         }
-        // self::$permissions = new Permissions();
+        parent::__construct();
     }
 
     public function setDirectory($directory="./")
@@ -42,7 +42,7 @@ class Handler extends HandlerCore implements HandlerInterface
      */
     public function directory(string $path, int $mode = 0755, bool $recursive = true)
     {
-            return $this->generateDirectory($path, $mode, $recursive);
+            return $this->generateDirectoryz($path, $mode, $recursive);
     }
 
     /**

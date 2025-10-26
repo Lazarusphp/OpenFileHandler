@@ -8,8 +8,13 @@ use Exception;
 
     protected static $directory = "";
     protected static $prefix = "";
+    protected Permissions $permissions;
 
-    
+    public function __construct()
+    {
+        $this->permissions = new Permissions();
+    }
+
     /**
      * Require Access Token in order to Continue Prevent Calling methods directly;
      * 
