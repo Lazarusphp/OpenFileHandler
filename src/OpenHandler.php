@@ -10,10 +10,13 @@ class OpenHandler
 {
     private static HandlerInterface $handlerInterface;
 
-    public static function create($directory)
+    public static function create(string $directory,$customhandler ="")
+    
     {
-        if (class_exists(Handler::class)) {
-            self::$handlerInterface = new Handler($directory);
+        $handler =( empty($customhandler)) ? Handler::class : $customhandler;
+        if (class_exists($handler)) {
+            $handler = explode("::",$handler);
+            self::$handlerInterface = new $handler[0]($directory);
             self::$handlerInterface->setDirectory($directory);
             return self::$handlerInterface;
         } 
