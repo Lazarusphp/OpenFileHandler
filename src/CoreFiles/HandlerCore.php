@@ -1,15 +1,18 @@
 <?php
 namespace LazarusPhp\OpenHandler\CoreFiles;
 
+use App\System\Core\Functions;
+use LazarusPhp\OpenHandler\Permissions;
 use Exception;
+use LazarusPhp\OpenHandler\Traits\Whitelist;
+use BadMethodCallException;
 
- abstract class HandlerCore
+abstract class HandlerCore
 {
-
+    use Whitelist;
     protected static $directory = "";
     protected static $prefix = "";
     protected Permissions $permissions;
-
     public function __construct()
     {
         $this->permissions = new Permissions();
@@ -25,10 +28,20 @@ use Exception;
      * @return bool
      */
 
+    public function __call($name, $arguments)
+    {
+        if($this->hasMethod($name)===false)
+        {
+            throw new BadMethodCallException("Method $name does not exist in ".get_class($this));   
+        }
+        die();
+    }
+
     protected function hasDirectory(string $path):bool
-   {
+    {
+        $this->setWhitelist(__FUNCTION__);
         return is_dir($path) ? true : false;
-   }
+    }
 
 //    Detect if file exists return bool
 
@@ -39,7 +52,7 @@ use Exception;
     */
      protected function hasFile(string $path):bool
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         return (is_file($path)) ? true : false;
     }
 
@@ -50,6 +63,7 @@ use Exception;
      */
      protected function fileExists(string $path):bool
     {
+        $this->setWhitelist(__FUNCTION__);
         return (file_exists($path)) ? true : false;
     }
 
@@ -57,17 +71,17 @@ use Exception;
      * this method will be used to detect the directories and any prefix Attched to the file
      */
 
-     protected static function filepath($directory)
+    protected function filepath($directory)
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         $root = self::$directory;
         $prefix = self::$prefix ?? "";
         return $root.$prefix.$directory;
     }
 
-     protected static function validMode(int $mode)
+     protected function validMode(int $mode)
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         $modes = [0600, 0644, 0664, 0700, 0755, 0777];
         if (in_array($mode, $modes)) {
             return true;
@@ -85,7 +99,7 @@ use Exception;
      */
      protected function withDots($path):bool
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         return ($path === "." || $path === "..") ? true : false;
     }
 
@@ -96,13 +110,13 @@ use Exception;
      */
      protected function writable(string $path): bool
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         return is_writable($path) ? true : false;
     }
 
      protected  function readable(string $path):bool
     {
-       
+        $this->setWhitelist(__FUNCTION__);
         return is_readable($path) ? true : false;
     }
 
@@ -241,12 +255,8 @@ use Exception;
             return false;
         }
     }
-
-
-
     protected function generateDelete(string $path): bool
     {
-       
         $path = $this->filePath($path);
         if ($this->hasFile($path)) {
             return unlink($path);

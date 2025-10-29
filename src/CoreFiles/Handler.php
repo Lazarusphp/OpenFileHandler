@@ -11,7 +11,9 @@ use LogicException;
 class Handler extends HandlerCore implements HandlerInterface
 {
 
-
+    protected array $allowedHelpers = ["hasFile",
+    "hasDirectory","validMode","fileExists","filepath","writable","readable","withDots"];
+    protected array $allowedMethods = [];
     public function __construct($directory="")
     {
         // Empty Constructor 
@@ -19,6 +21,7 @@ class Handler extends HandlerCore implements HandlerInterface
         {
             $this->setDirectory($directory);
         }
+
         parent::__construct();
     }
 
@@ -42,8 +45,10 @@ class Handler extends HandlerCore implements HandlerInterface
      */
     public function directory(string $path, int $mode = 0755, bool $recursive = true)
     {
-            return $this->generateDirectoryz($path, $mode, $recursive);
-    }
+            
+             return $this->generateDirectory($path, $mode, $recursive);     
+      
+     }
 
     /**
      * Delete a file or directory at the specified path.
