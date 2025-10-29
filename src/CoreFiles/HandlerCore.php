@@ -2,17 +2,24 @@
 namespace LazarusPhp\OpenHandler\CoreFiles;
 
 use App\System\Core\Functions;
-use LazarusPhp\OpenHandler\Permissions;
 use Exception;
 use LazarusPhp\OpenHandler\Traits\Whitelist;
 use BadMethodCallException;
+use LazarusPhp\OpenHandler\Permissions;
+
+/**
+ * @abstract class HandlerCore
+ * Cannot be called statically or as a new Instantiation.
+ * is required only for use with OpenHandler Handler class.
+ */
 
 abstract class HandlerCore
 {
     use Whitelist;
     protected static $directory = "";
     protected static $prefix = "";
-    protected Permissions $permissions;
+    protected $permissions;
+
     public function __construct()
     {
         $this->permissions = new Permissions();
@@ -28,15 +35,26 @@ abstract class HandlerCore
      * @return bool
      */
 
+
+    /**
+     * @method __call
+     * Detects if a dynamic method has been created and rejects it.
+     */
     public function __call($name, $arguments)
     {
         if($this->hasMethod($name)===false)
         {
             throw new BadMethodCallException("Method $name does not exist in ".get_class($this));   
+            exit();
         }
-        die();
     }
 
+    /**
+     * @method hasDirectory
+     * @property string $path
+     * @return void
+     * Helper function to detect if a directory exists.
+     */
     protected function hasDirectory(string $path):bool
     {
         $this->setWhitelist(__FUNCTION__);
@@ -46,6 +64,7 @@ abstract class HandlerCore
 //    Detect if file exists return bool
 
    /**
+    * @method hasFile
     * Detect if is a file
     * @property string $path;
     * @return bool 
@@ -53,7 +72,7 @@ abstract class HandlerCore
      protected function hasFile(string $path):bool
     {
         $this->setWhitelist(__FUNCTION__);
-        return (is_file($path)) ? true : false;
+        return (string) (is_file($path)) ? true : false;
     }
 
     /**
@@ -68,17 +87,28 @@ abstract class HandlerCore
     }
 
     /**
-     * this method will be used to detect the directories and any prefix Attched to the file
+     * @method hasDirectory
+     * @property string $path
+     * @method $this->whitelist() does a check for whitelisted values set within handler.
+     * @return void
+     * Helper function to detect if a directory exists.
      */
-
-    protected function filepath($directory)
+    protected function filePath(string $directory)
     {
         $this->setWhitelist(__FUNCTION__);
         $root = self::$directory;
         $prefix = self::$prefix ?? "";
-        return $root.$prefix.$directory;
+        $directory = $directory;
+    
+        return (string) $root.$prefix.$directory;
+
     }
 
+    /**
+     * @method validMode
+     * @property int $mode
+     * Detrermines if the correct mode for directory creation is valid
+     */
      protected function validMode(int $mode)
     {
         $this->setWhitelist(__FUNCTION__);
@@ -123,10 +153,16 @@ abstract class HandlerCore
 
     // Crud Elements
 
+    /**
+     * @method generateDirectory
+     * @property string $path
+     * @property int $mode
+     * @property boot $recursive
+     */
      protected function generateDirectory(string $path,int $mode = 0755, bool $recursive = true)
     {
         // Detect if  directory Exists
-        $path = $this->filePath($path);
+        $path = (!empty($path)) ? $this->filePath($path) : "";
         if($this->validMode($mode) === true)
         {
         // Create Folder if it doesnt exist
@@ -164,7 +200,7 @@ abstract class HandlerCore
         return null;
     }
 
-    protected function generateList($path, bool $recursive =true,$files=true):array
+    protected function generateList(string $path, bool $recursive =true,$files=true):array
     {
        
         // Avoid double prefixing
@@ -186,7 +222,7 @@ abstract class HandlerCore
             if ($this->withDots($item))  continue;
 
             $ds = DIRECTORY_SEPARATOR;
-            $fullpath = rtrim($path, $ds) . $ds . ltrim($item, $ds);
+            $fullpath = (string) rtrim($path, $ds) . $ds . ltrim($item, $ds);
 
             if($files === true){
                 if ($this->hasFile($fullpath) === true) {
@@ -217,6 +253,9 @@ abstract class HandlerCore
         return $result;
     }
 
+
+
+
     protected function generateBreadcrumb()
     {
        
@@ -232,11 +271,11 @@ abstract class HandlerCore
         if(in_array($extension,$supportedFiles))
         {
             if(substr($filename,0,1) === DIRECTORY_SEPARATOR){
-                $filename = $this->filePath($filename);
-                if(!file_exists($filename))
+                $filename = (string) $this->filePath($filename);
+                if(!file_exists((string) $filename))
                 {
                     $output = $data;
-                    if(file_put_contents($filename,$output,$flags))
+                    if(file_put_contents((string) $filename,$output,$flags))
                     {
                         return true;
                     }
@@ -257,10 +296,11 @@ abstract class HandlerCore
     }
     protected function generateDelete(string $path): bool
     {
-        $path = $this->filePath($path);
+        $path = (string) $this->filePath($path);
+
         if ($this->hasFile($path)) {
             return unlink($path);
-        } elseif ($this->hasDirectory($path)) {
+        } elseif ($this->hasDirectory($path ?? '')) {
             $items = $this->generateList($path, true);
             foreach ($items['files'] as $file) {
                 @unlink($file);

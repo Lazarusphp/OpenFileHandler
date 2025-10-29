@@ -12,7 +12,8 @@ class Handler extends HandlerCore implements HandlerInterface
 {
 
     protected array $allowedHelpers = ["hasFile",
-    "hasDirectory","validMode","fileExists","filepath","writable","readable","withDots"];
+    "hasDirectory","validMode","fileExists","filePath",
+    "writable","readable","withDots"];
     protected array $allowedMethods = [];
     public function __construct($directory="")
     {
@@ -45,9 +46,7 @@ class Handler extends HandlerCore implements HandlerInterface
      */
     public function directory(string $path, int $mode = 0755, bool $recursive = true)
     {
-            
-             return $this->generateDirectory($path, $mode, $recursive);     
-      
+            return $this->generateDirectory($path, $mode, $recursive);     
      }
 
     /**
@@ -56,7 +55,7 @@ class Handler extends HandlerCore implements HandlerInterface
      * @return bool
      */
     
-    public function delete($path)
+    public function delete(string $path)
     {
         return  $this->generateDelete($path);
     }
@@ -70,9 +69,9 @@ class Handler extends HandlerCore implements HandlerInterface
 
     public function file(string $path,array | int | string $data,$flags=0)
     {
-        $path = $this->filePath($path);
+        // $path = $this->filePath($path);
 
-           return $this->generateFile($path,$data);
+        //    return $this->generateFile($path,$data);
         
     }
     
@@ -85,7 +84,7 @@ class Handler extends HandlerCore implements HandlerInterface
      */
      
 
-    public function list($path,$recursive=true,$files=true)
+    public function list(string $path,$recursive=true,$files=true)
     {
         $path = self::$prefix !== "" ? $this->filePath($path) : $path;
         return $this->generateList($path,$recursive);
