@@ -1,11 +1,12 @@
 <?php
-namespace LazarusPhp\OpenFileHandler;
+namespace LazarusPhp\OpenHandler;
 
 use LazarusPhp\OpenHandler\CoreFiles\PermissionsCore;
 
 class Permissions extends PermissionsCore
 {
 
+    protected $directory;
 
     protected static function apacheUid($path)
     {
