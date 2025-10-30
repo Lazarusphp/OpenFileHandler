@@ -14,7 +14,7 @@ class Handler extends HandlerCore implements HandlerInterface
     protected array $allowedHelpers = ["hasFile",
     "hasDirectory","validMode","fileExists","filePath",
     "writable","readable","withDots"];
-    protected array $allowedMethods = [];
+    protected array $allowedMethods = ["generateDirectory","generateList","generateFile","generateDelete",""];
     public function __construct($directory="")
     {
         // Empty Constructor 

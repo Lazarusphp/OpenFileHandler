@@ -14,6 +14,9 @@ trait Whitelist
         return method_exists($this,$method) ? true : false;
     }
 
+
+
+
     public function validMethod(string $method)
     {
         if($this->hasMethod($method)=== true)
@@ -29,57 +32,42 @@ trait Whitelist
     }
     
     
-    private function validHelper(string $method):bool
+    private function validateHelper(string $method):bool
     {
-       return (in_array($method,$this->allowedHelpers) && is_array($this->allowedHelpers)) ? true : false;
+       return (in_array($method,$this->allowedHelpers)) ? true : false;
     }
 
-    public function setMethodWhitelist(string|array $method)
+    private function validateMethod(string $method):bool
     {
-      $count = is_array($method) ? count($method) : 1;
-        $args = is_array($method) ? $method[0] : $method;
-        if($count > 1)
-        {
-            foreach($args as $method)
+       return (in_array($method,$this->allowedMethods)) ? true : false;
+    }
+
+
+    public function setHelper($method)
+    {
+        // Reject with error if method isnt in the array
+        if(count($this->allowedHelpers) >= 1){
+            if($this->hasMethod($method) === true)
             {
-                if($this->validMethod($method) === false)
+                if($this->validateHelper($method) === false)
                 {
-                    throw new \Exception("Access to method $method is denied.");
+                    echo "helper Name : $method Cannot be used in class : " . static::class  . "<br>";
                 }
             }
         }
-        else
-        {
-            if($this->validMethod($args) === false)
-            {
-                throw new \Exception("Access to method $args is denied.");
-            }
-        }
     }
 
-    protected function setWhitelist(string|array $method)
+
+    public function setMethod($method)
     {
-        $count = is_array($method) ? count($method) : 1;
-        $args = is_array($method) ? $method[0] : $method;
-        if($count > 1)
-        {
-            foreach($args as $method)
+        if(count($this->allowedMethods) >= 1){
+            if($this->hasMethod($method) === true)
             {
-                if($this->validHelper($args) === false)
+                if($this->validateMethod($method) === false)
                 {
-                    throw new \Exception("Access to method Helper $args is denied.");
+                    echo "Method Name : $method Cannot be used in class : " . static::class  . "<br>";
                 }
             }
         }
-        else
-        {
-            if($this->validHelper($args) === false)
-            {
-                throw new \Exception("Access to method $args is denied.");
-            }
-        }
-
-    
     }
-
 }

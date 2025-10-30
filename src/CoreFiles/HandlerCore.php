@@ -49,6 +49,8 @@ abstract class HandlerCore
         }
     }
 
+    // Helper methods 
+
     /**
      * @method hasDirectory
      * @property string $path
@@ -57,7 +59,7 @@ abstract class HandlerCore
      */
     protected function hasDirectory(string $path):bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return is_dir($path) ? true : false;
     }
 
@@ -71,7 +73,7 @@ abstract class HandlerCore
     */
      protected function hasFile(string $path):bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return (string) (is_file($path)) ? true : false;
     }
 
@@ -82,7 +84,7 @@ abstract class HandlerCore
      */
      protected function fileExists(string $path):bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return (file_exists($path)) ? true : false;
     }
 
@@ -95,7 +97,7 @@ abstract class HandlerCore
      */
     protected function filePath(string $directory)
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         $root = self::$directory;
         $prefix = self::$prefix ?? "";
         $directory = $directory;
@@ -111,7 +113,7 @@ abstract class HandlerCore
      */
      protected function validMode(int $mode)
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         $modes = [0600, 0644, 0664, 0700, 0755, 0777];
         if (in_array($mode, $modes)) {
             return true;
@@ -129,7 +131,7 @@ abstract class HandlerCore
      */
      protected function withDots($path):bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return ($path === "." || $path === "..") ? true : false;
     }
 
@@ -140,18 +142,18 @@ abstract class HandlerCore
      */
      protected function writable(string $path): bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return is_writable($path) ? true : false;
     }
 
      protected  function readable(string $path):bool
     {
-        $this->setWhitelist(__FUNCTION__);
+        $this->setHelper(__FUNCTION__);
         return is_readable($path) ? true : false;
     }
 
 
-    // Crud Elements
+    // Generative Methods.
 
     /**
      * @method generateDirectory
@@ -161,6 +163,7 @@ abstract class HandlerCore
      */
      protected function generateDirectory(string $path,int $mode = 0755, bool $recursive = true)
     {
+        $this->setMethod(__FUNCTION__);
         // Detect if  directory Exists
         $path = (!empty($path)) ? $this->filePath($path) : "";
         if($this->validMode($mode) === true)
@@ -185,7 +188,7 @@ abstract class HandlerCore
 
     protected function generatePrefix(string $path,callable $handler,array $middleware=[])
     {
-        
+        $this->setMethod(__FUNCTION__);
         if(self::$prefix === ""){
         self::$prefix = $path;
         }
@@ -202,7 +205,7 @@ abstract class HandlerCore
 
     protected function generateList(string $path, bool $recursive =true,$files=true):array
     {
-       
+        $this->setMethod(__FUNCTION__);   
         // Avoid double prefixing
         if (!empty(self::$directory) && strpos($path, self::$directory) !== 0) {
             $path = rtrim(self::$directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
@@ -258,14 +261,14 @@ abstract class HandlerCore
 
     protected function generateBreadcrumb()
     {
-       
+        $this->setMethod(__FUNCTION__);      
         $path = ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["path"])) ? $_GET["path"] : self::$directory;
         return htmlspecialchars($path);
     }
 
     protected function generateFile(string $filename, int|string|array $data,int $flags=0)
     {
-       
+        $this->setMethod(__FUNCTION__);   
         $supportedFiles = ["php","txt","tpl","class","env","json"];
         $extension = pathinfo($filename)["extension"];
         if(in_array($extension,$supportedFiles))
@@ -296,8 +299,8 @@ abstract class HandlerCore
     }
     protected function generateDelete(string $path): bool
     {
+        $this->setMethod(__FUNCTION__);
         $path = (string) $this->filePath($path);
-
         if ($this->hasFile($path)) {
             return unlink($path);
         } elseif ($this->hasDirectory($path ?? '')) {
@@ -312,5 +315,4 @@ abstract class HandlerCore
         }
         return false;
     }
-
 }
