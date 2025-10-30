@@ -1,5 +1,6 @@
 <?php
 namespace LazarusPhp\OpenHandler\Traits;
+use ReflectionClass;
 
 trait Whitelist
 {
@@ -42,6 +43,18 @@ trait Whitelist
        return (in_array($method,$this->allowedMethods)) ? true : false;
     }
 
+    // Shorten the classname
+    private function classname($class)
+    {
+        if(class_exists($class)){
+            return new ReflectionClass($class)->getShortName();
+        }
+        else
+        {
+            $this->error($class,"Class $class does not exist");
+        }
+    }
+
 
     public function setHelper($method)
     {
@@ -51,7 +64,7 @@ trait Whitelist
             {
                 if($this->validateHelper($method) === false)
                 {
-                    echo "helper Name : $method Cannot be used in class : " . static::class  . "<br>";
+                    $this->error($method,"helper Name : $method Cannot be used in class : " .$this->classname(static::class));
                 }
             }
         }
@@ -65,9 +78,33 @@ trait Whitelist
             {
                 if($this->validateMethod($method) === false)
                 {
-                    echo "Method Name : $method Cannot be used in class : " . static::class  . "<br>";
+                    $this->error($method,"Method Name : $method Cannot be used in class : " .$this->classname(static::class));
                 }
             }
         }
+    }
+
+    public function error($method="",$error="")
+    {
+        if(!empty($method) && !empty($error))
+        {
+            if(!array_key_exists($method,$this->errors))
+            {
+                $this->errors[$method] = $error;
+            }
+        }
+        else
+        {
+            return (object) $this->errors;
+        }
+    }
+
+    public function hasErrors()
+    {
+        if(count($this->errors) >= 1)
+        {
+            return true;
+        }
+        return false;
     }
 }

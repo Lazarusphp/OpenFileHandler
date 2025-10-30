@@ -19,6 +19,7 @@ abstract class HandlerCore
     protected static $directory = "";
     protected static $prefix = "";
     protected $permissions;
+    public array $errors = [];
 
     public function __construct()
     {
@@ -44,8 +45,7 @@ abstract class HandlerCore
     {
         if($this->hasMethod($name)===false)
         {
-            throw new BadMethodCallException("Method $name does not exist in ".get_class($this));   
-            exit();
+            trigger_error("Method : $name cannot be found or does not exist",E_USER_WARNING);
         }
     }
 
