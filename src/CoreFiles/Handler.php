@@ -10,12 +10,29 @@ use LogicException;
 
 class Handler extends HandlerCore implements HandlerInterface
 {
+
+    /**
+     * @propertyy array $allowedHelpers
+     * Lists allowed Helpers
+     */
     protected array $allowedHelpers = ["hasFile",
     "hasDirectory","validMode","fileExists","filePath",
     "writable","readable","withDots"];
+
+    /**
+     * @property array $allowedMethods
+     * Sets List of allowed  values for array.
+     */
     protected array $allowedMethods = [
         "generateDirectory","generateList","generateFile","generateDelete",""];
-    public function __construct($directory="")
+
+    /**
+     * @method __construct()
+     * Used to set Directory on instantiation if a value is presented.
+     * @param $directory
+     * 
+     * */
+    public function __construct(string $directory="")
     {
         // Empty Constructor 
         if($directory !== "")
@@ -26,7 +43,14 @@ class Handler extends HandlerCore implements HandlerInterface
         parent::__construct();
     }
 
-    public function setDirectory($directory="./")
+
+    /**
+     * @method setDirectory
+     * @param string $directory
+     * can be used seperatly to override the directory set in constructor.
+     * sets @property self::$directory  if directory exists.
+     */
+    public function setDirectory(string $directory="./")
     {
             if ($this->hasDirectory($directory) && self::writable($directory)) {
                 // Create the directory
@@ -96,13 +120,21 @@ class Handler extends HandlerCore implements HandlerInterface
         return $this->generatePrefix($path, $handler, $middleware=[]);
     }
 
+
+
     public function breadcrumb()
     {
         return $this->generateBreadcrumb();
     }
 
+    /**
+     * @method upload
+     * @param string $path
+     * @param callable $image
+     * @return @method $this->imageHandler()->upload($path,$image);
+     */
     public function upload(string $path,callable $image)
     {
-
+        // return $this->imageHandler->upload($path,$image);
     }
 }
