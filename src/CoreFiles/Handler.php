@@ -24,7 +24,7 @@ class Handler extends HandlerCore implements HandlerInterface
      * Sets List of allowed  values for array.
      */
     protected array $allowedMethods = [
-        "generateDirectory","generateList","generateFile","generateDelete",""];
+        "generateDirectory","generateFile","generateDelete","generatePrefix"];
 
     /**
      * @method __construct()
@@ -39,8 +39,8 @@ class Handler extends HandlerCore implements HandlerInterface
         {
             $this->setDirectory($directory);
         }
-
-        parent::__construct();
+        $class = __CLASS__
+        parent::__construct($class);
     }
 
 
@@ -133,8 +133,9 @@ class Handler extends HandlerCore implements HandlerInterface
      * @param callable $image
      * @return @method $this->imageHandler()->upload($path,$image);
      */
-    public function upload(string $path,callable $image)
+    public function upload(string $path)
     {
-        // return $this->imageHandler->upload($path,$image);
+        $images = new ImageHandler();
+        $images->upload($path);
     }
 }
