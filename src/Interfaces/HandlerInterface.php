@@ -9,7 +9,7 @@ interface HandlerInterface
     public function file(string $path, int|string|array $data,int $flags=0);
     public function prefix(string $path, callable $handler,array $middleware=[]);
     public function setDirectory(string $directory="");
-    public function upload(string $path,callable $handler);
+    public function upload(string $path);
     public function breadcrumb();
 }
 
