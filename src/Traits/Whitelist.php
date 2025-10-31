@@ -1,5 +1,7 @@
 <?php
 namespace LazarusPhp\OpenHandler\Traits;
+
+use LazarusPhp\OpenHandler\ErrorHandler;
 use ReflectionClass;
 
 trait Whitelist
@@ -51,7 +53,7 @@ trait Whitelist
         }
         else
         {
-            $this->error($class,"Class $class does not exist");
+            self::setError("Class","Invalid Class : $class does not exist");
         }
     }
 
@@ -59,52 +61,33 @@ trait Whitelist
     public function setHelper($method)
     {
         // Reject with error if method isnt in the array
+        $message = "Invalid helper Name : $method Cannot be used in class : " .$this->classname(static::class);
+        $values = ["type"=>"Helper","message"=>$message,"class"=>$this->classname];
+        
         if(count($this->allowedHelpers) >= 1){
             if($this->hasMethod($method) === true)
             {
                 if($this->validateHelper($method) === false)
                 {
-                    $this->error($method,"helper Name : $method Cannot be used in class : " .$this->classname(static::class));
+                    ErrorHandler::setError($values);
                 }
             }
         }
     }
 
-
     public function setMethod($method)
     {
+        $message = "Invalid Method Name : $method Cannot be used in class : " .$this->classname(static::class);
+        $values = ["type"=>"method","message"=>$message,"class"=>$this->classname(static::class)];
         if(count($this->allowedMethods) >= 1){
             if($this->hasMethod($method) === true)
             {
                 if($this->validateMethod($method) === false)
                 {
-                    $this->error($method,"Method Name : $method Cannot be used in class : " .$this->classname(static::class));
+                    ErrorHandler::setError($values);
                 }
             }
         }
     }
 
-    public function error($method="",$error="")
-    {
-        if(!empty($method) && !empty($error))
-        {
-            if(!array_key_exists($method,$this->errors))
-            {
-                $this->errors[$method] = $error;
-            }
-        }
-        else
-        {
-            return (object) $this->errors;
-        }
-    }
-
-    public function hasErrors()
-    {
-        if(count($this->errors) >= 1)
-        {
-            return true;
-        }
-        return false;
-    }
 }
