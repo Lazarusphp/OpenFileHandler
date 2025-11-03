@@ -15,16 +15,13 @@ class Handler extends HandlerCore implements HandlerInterface
      * @propertyy array $allowedHelpers
      * Lists allowed Helpers
      */
-    protected array $allowedHelpers = ["hasFile",
-    "hasDirectory","validMode","fileExists","filePath",
-    "writable","readable","withDots"];
 
     /**
      * @property array $allowedMethods
      * Sets List of allowed  values for array.
      */
-    protected array $allowedMethods = [
-        "generateDirectory","generateFile","generateDelete","generatePrefix"];
+
+    protected array $restricted = ["generateDirectory","generatePrefix","generateUpload","generateList"];
 
     /**
      * @method __construct()
@@ -39,8 +36,6 @@ class Handler extends HandlerCore implements HandlerInterface
         {
             $this->setDirectory($directory);
         }
-        $class = __CLASS__
-        parent::__construct($class);
     }
 
 
@@ -52,7 +47,7 @@ class Handler extends HandlerCore implements HandlerInterface
      */
     public function setDirectory(string $directory="./")
     {
-            if ($this->hasDirectory($directory) && self::writable($directory)) {
+            if ($this->hasDirectory($directory) && $this->writable($directory)) {
                 // Create the directory
                 self::$directory = $directory;
             } else {
@@ -96,6 +91,7 @@ class Handler extends HandlerCore implements HandlerInterface
         // $path = $this->filePath($path);
 
         //    return $this->generateFile($path,$data);
+        return $this->hasDirectory($path);
         
     }
     
@@ -124,7 +120,7 @@ class Handler extends HandlerCore implements HandlerInterface
 
     public function breadcrumb()
     {
-        return $this->generateBreadcrumb();
+        // return $this->generateBreadcrumb();
     }
 
     /**
@@ -133,9 +129,8 @@ class Handler extends HandlerCore implements HandlerInterface
      * @param callable $image
      * @return @method $this->imageHandler()->upload($path,$image);
      */
-    public function upload(string $path)
+    public function upload(string $path,string $name)
     {
-        $images = new ImageHandler();
-        $images->upload($path);
+        return $this->generateUpload($path,$name);
     }
 }
